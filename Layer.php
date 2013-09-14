@@ -42,7 +42,7 @@
 * @package GeneticNeuralNetwork
 */
 
-namespace GeneticNeuralNet;
+namespace Gann;
 
 /**
 * @package GeneticNeuralNet
