@@ -1,4 +1,4 @@
-gann
-====
+genetic-neural-net
+==================
 
-Genetic Algorithm Neural Network
+Genetic neural network -> alex dan implementation
