@@ -43,7 +43,7 @@
 */
 
 
-namespace Gann;
+namespace danlex\gann;
 
 /**
 * @package GeneticNeuralNet
