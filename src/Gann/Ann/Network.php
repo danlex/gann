@@ -46,127 +46,232 @@
 namespace Gann\Ann;
 
 /**
-* @package GeneticNeuralNet
+* @package Gann
 * @access public
 */
 
 class Network
 {
-	
-	/**
+    
+    /**
     * @var integer
     */
-	protected $inputSize;
-	
-	/**
+    protected $inputSize;
+    
+    /**
     * @var integer
     */
-	protected $outputSize;
-	
-	/**
+    protected $outputSize;
+    
+    /**
     * @var integer
     */
-	protected $hiddenLayerSize;
+    protected $hiddenLayerSize;
 
-	/**
-	* @var integer
-	*/
-	protected $neuronsPerLayerSize;
-	
-	/**
+    /**
+    * @var integer
+    */
+    protected $neuronsPerLayerSize;
+    
+    /**
     * @var array
     */
-	protected $inputs;
-	
-	/**
+    protected $inputs;
+    
+    /**
     * @var array
     */
-	protected $outputs;
+    protected $outputs;
 
-	/**
-	* @var array
-	*/
-	protected $hiddenLayers;
+    /**
+    * @var array
+    */
+    protected $hiddenLayers;
 
-	/**
-	* @var Layer
-	*/
-	protected $ouputLayer;
+    /**
+    * @var Layer
+    */
+    protected $ouputLayer;
 
-	/**
-	* @param integer $hiddenLayerSize (Default: 1)
-	* @param integer $neuronsPerLayerSize (Default: 6)
-	* @param integer $outputSize (Default: 1)
-	* @usses createHiddenLayers()
-	* @usses createOuputLayer()
-	*/
-	public function __construct($inputSize = 2, $hiddenLayerSize = 1, $neuronsPerLayerSize = 6, $outputSize = 1)
-	{
-		$this->inputSize = $inputSize;
-		$this->hiddenLayerSize = $hiddenLayerSize;
-		$this->neuronsPerLayerSize = $neuronsPerLayerSize;
-		$this->outputSize = $outputSize;
+    /**
+    * @var array
+    */
+    protected $trainInputs;
 
-		$this->createOutputLayer();
-		$this->createHiddenLayers();
-	}
+    /**
+    * @var array
+    */
+    protected $trainOutputs;
 
-	/**
-	* @usses Layer::setInputs()
-	* @usses Layer::activate();
-	* @usses Layer::getOutputs();
-	*/
-	public function activate()
-	{
-		$inputs = $this->inputs;
-		foreach ($this->hiddenLayers as $hiddenLayer){
-			$inputs = $hiddenLayer->setInputs($inputs)->activate()->getOutputs();
+    /**
+    * @var float
+    */
+    protected $trainOutputErrorTolerance = 0.02;
+
+    /**
+    * @var float
+    */
+    protected $trainLearningRate = 0.7;
+
+    /**
+    * @var float
+    */
+    protected $trainMomentum = 0.95;
+
+    /**
+    * @param integer $hiddenLayerSize (Default: 1)
+    * @param integer $neuronsPerLayerSize (Default: 6)
+    * @param integer $outputSize (Default: 1)
+    * @usses createHiddenLayers()
+    * @usses createOuputLayer()
+    */
+    public function __construct($inputSize = 2, $hiddenLayerSize = 1, $neuronsPerLayerSize = 6, $outputSize = 1)
+    {
+        $this->inputSize = $inputSize;
+        $this->hiddenLayerSize = $hiddenLayerSize;
+        $this->neuronsPerLayerSize = $neuronsPerLayerSize;
+        $this->outputSize = $outputSize;
+
+        $this->createOutputLayer();
+        $this->createHiddenLayers();
+    }
+
+    /**
+    * @usses Layer::setInputs()
+    * @usses Layer::activate();
+    * @usses Layer::getOutputs();
+    */
+    public function activate()
+    {
+        $inputs = $this->inputs;
+        foreach ($this->hiddenLayers as $hiddenLayer){
+            $inputs = $hiddenLayer->setInputs($inputs)->activate()->getOutputs();
         }
-		$this->ouputs = $this->outputLayer->setInputs($inputs)->activate()->getOutputs();
-		return $this;
-	}
+        $this->ouputs = $this->outputLayer->setInputs($inputs)->activate()->getOutputs();
+        return $this;
+    }
 
-	/**
-	* @usses Layer::__construct()
-	*/
-	protected function createHiddenLayers()
-	{
-		for ($i = 0; $i < $this->hiddenLayerSize; $i ++){
+    /**
+    * @usses Layer::__construct()
+    */
+    protected function createHiddenLayers()
+    {
+        for ($i = 0; $i < $this->hiddenLayerSize; $i ++){
             $this->hiddenLayers[$i] = new Layer($this->inputSize, $this->neuronsPerLayerSize);
         }
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	* @usses Layer::__construct()
-	*/
-	protected function createOutputLayer()
-	{
-		$this->outputLayer = new Layer($this->inputSize, $this->outputSize);
-	}
+    /**
+    * @usses Layer::__construct()
+    */
+    protected function createOutputLayer()
+    {
+        $this->outputLayer = new Layer($this->inputSize, $this->outputSize);
+    }
 
-	/**
-	* @param array $inputs
-	* @return Network
-	*/
-	public function setInputs($inputs)
-	{
-		$this->inputs = $inputs;
-		return $this;
-	}
+    /**
+    * @param array $inputs
+    * @return Network
+    */
+    public function setInputs($inputs)
+    {
+        $this->inputs = $inputs;
+        return $this;
+    }
 
-	/**
+    /**
     * @param array $outputs
     * @return Network
     */
-	protected function setOutputs($outputs)
-	{
-		$this->outptuts = $outputs;
-		return $this;
-	}
+    protected function setOutputs($outputs)
+    {
+        $this->outptuts = $outputs;
+        return $this;
+    }
 
-	public function getOutputs()
-	{
-		return $this->outputs;
-	}
+    public function getOutputs()
+    {
+        return $this->outputs;
+    }
+    
+    /**
+    * @param array $trainInputs
+    * @return Network
+    */
+    public function setTrainInputs($trainInputs)
+    {
+        $this->trainInputs = $trainInputs;
+        $this->outputLayer->setTrainInputs($trainInputs);
+
+        foreach ($this->hiddenLayers as $hiddenLayer){
+            $hiddenLayer->setTrainInputs($trainInputs);
+        }
+        return $this;
+    }
+
+    /**
+    * @param array $trainOutputs
+    * @return Network
+    */
+    public function setTrainOutptuts($trainOutputs)
+    {
+        $this->trainOutputs = $trainOutputs;
+        $this->outputLayer->setTrainOutputs($trainOutputs);
+
+        foreach ($this->hiddenLayers as $hiddenLayer){
+            $hiddenLayer->setTrainOutputs($trainOutputs);
+        }
+        return $this;
+    }
+
+    /**
+    * @param array $arrOutputs
+    * @uses activate()
+    * @uses Layer::calculateDeltas()
+    * @uses Layer::adjustWeights()
+    * @uses getTrainError()
+    */
+    public function train()
+    {
+        $this->activate();
+        $this->calculateDeltas();
+        $this->adjustWeights();
+    }
+
+    /**
+    * @usses Layer::calculateDeltas()
+    */
+    protected function calculateDeltas()
+    {
+        $this->outputLayer->calculateDeltas();
+
+        for ($i = $this->hiddenLayerSize; $i >= 0; $i--){
+            $this->hiddenLayers[$i]->calculateDeltas();
+        }
+    }
+
+    /**
+    * @usses Layer::adjustWeights()
+    */
+    protected function adjustWeights()
+    {
+        $this->outputLayer->adjustWeights();
+        for ($i = $this->hiddenLayerSize; $i >= 0; $i--){
+            $this->hiddenLayers[$i]->adjustWeights();
+        }
+    }
+
+    /**
+    * @return float
+    * @uses getOutputs()
+    */
+    protected function getTrainError()
+    {
+        $error = 0;
+        foreach($this->outputs as $keyOutput => $valueOutput){
+            $error += pow($valueOutput - $this->trainOutputs[$keyOutput], 2);
+        }
+        return $floatError / 2;
+    }
 }

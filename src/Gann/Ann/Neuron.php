@@ -46,7 +46,7 @@
 namespace Gann\Ann;
 
 /**
-* @package GeneticNeuralNet
+* @package Gann
 * @access private
 */
 

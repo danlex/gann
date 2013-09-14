@@ -143,4 +143,44 @@ class Layer
 		$this->outputs = $outputs;
 		return $this;
 	}
+
+    /**
+    * @param array $trainInputs
+    * @usses setTrainInputs
+    * @return Layer
+    */
+    public function setTrainInputs($trainInputs)
+    {
+        $this->trainInputs = $trainInputs;
+        foreach ($this->neurons as $neuron){
+            $neuron->setTrainInputs($trainInputs);
+        }
+        return $this;
+    }
+
+    /**
+    * @param array $trainOutputs
+    * @usses setTrainOutputs
+    * @return Layer
+    */
+    public function setTrainOutptuts($trainOutputs)
+    {
+        $this->trainOutputs = $trainOutputs;
+        $this->outputLayer->setTrainOutputs($trainOutputs);
+
+        for ($this->neurons as $neuron){
+            $neuron->setTrainOutputs($trainOutputs);
+        }
+        return $this;
+    }
+
+    public function calculateDeltas(){
+    
+
+    }
+
+    public function adjustWeights()
+    {
+
+    }
 }
