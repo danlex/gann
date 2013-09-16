@@ -91,7 +91,7 @@ class Network
     /**
     * @var Layer
     */
-    protected $ouputLayer;
+    protected $outputLayer;
 
     /**
     * @var array
@@ -147,7 +147,7 @@ class Network
         foreach ($this->hiddenLayers as $hiddenLayer){
             $inputs = $hiddenLayer->setInputs($inputs)->activate()->getOutputs();
         }
-        $this->ouputs = $this->outputLayer->setInputs($inputs)->activate()->getOutputs();
+        $this->outputs = $this->outputLayer->setInputs($inputs)->activate()->getOutputs();
         return $this;
     }
 
@@ -164,10 +164,27 @@ class Network
 
     /**
     * @usses Layer::__construct()
+    * @return Network
     */
     protected function createOutputLayer()
     {
         $this->outputLayer = new Layer($this->inputSize, $this->outputSize);
+        return $this;
+    }
+
+    public function getHiddenLayerSize()
+    {
+        return $this->hiddenLayerSize;
+    }
+
+    public function getOutputLayer()
+    {
+        return $this->outputLayer;    
+    }
+
+    public function getHiddenLayer($key)
+    {
+        return $this->hiddenLayers[$key];    
     }
 
     /**
@@ -197,31 +214,25 @@ class Network
     
     /**
     * @param array $trainInputs
+    * @usses Network::setInputs()
     * @return Network
     */
     public function setTrainInputs($trainInputs)
     {
         $this->trainInputs = $trainInputs;
-        $this->outputLayer->setTrainInputs($trainInputs);
-
-        foreach ($this->hiddenLayers as $hiddenLayer){
-            $hiddenLayer->setTrainInputs($trainInputs);
-        }
+        $this->setInputs($trainInputs);
         return $this;
     }
 
     /**
     * @param array $trainOutputs
+    * @usses Layer::setTrainOutputs()
     * @return Network
     */
-    public function setTrainOutptuts($trainOutputs)
+    public function setTrainOutputs($trainOutputs)
     {
         $this->trainOutputs = $trainOutputs;
         $this->outputLayer->setTrainOutputs($trainOutputs);
-
-        foreach ($this->hiddenLayers as $hiddenLayer){
-            $hiddenLayer->setTrainOutputs($trainOutputs);
-        }
         return $this;
     }
 
@@ -240,15 +251,22 @@ class Network
     }
 
     /**
-    * @usses Layer::calculateDeltas()
+    * @usses Layer::calculateHiddneDeltas()
+    * @usses Layer::calculateOutputDeltas()
+    * @usees Layer::setNextLayer()
     */
     protected function calculateDeltas()
     {
-        $this->outputLayer->calculateDeltas();
+        $nextLayer = $this->getOutputLayer()->calculateOutputDeltas();     
 
-        for ($i = $this->hiddenLayerSize; $i >= 0; $i--){
-            $this->hiddenLayers[$i]->calculateDeltas();
+        print_r($this->getHiddenLayerSize());die;
+        for ($i = $this->getHiddenLayerSize() - 1; $i >= 0; $i--){
+            $nextLayer = $this->getHiddenLayer($i)
+                              ->setNextLayer($nextLayer)
+                              ->setMomentum($this->momentum)
+                              ->calculateHiddenDeltas();
         }
+        return $this;
     }
 
     /**
@@ -260,6 +278,7 @@ class Network
         for ($i = $this->hiddenLayerSize; $i >= 0; $i--){
             $this->hiddenLayers[$i]->adjustWeights();
         }
+        return $this;
     }
 
     /**

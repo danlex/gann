@@ -58,6 +58,11 @@ class Layer
 	protected $neuronsPerLayerSize;
 
 	/**
+    * @var Layer
+    */
+    protected $nextLayer;
+
+    /**
 	* @var int
 	*/
 	protected $inputsSize;
@@ -82,6 +87,21 @@ class Layer
 	*/
 	protected $outputs;
 
+    /**
+    * @var array
+    */
+    protected $trainInputs;
+
+    /**
+    * @var array
+    */
+    protected $trainOutputs;
+
+    /**
+    * @var float
+    */
+    protected $momentum;
+
 	/**
 	* @param int $inputsSize
 	* @param int $neuronsPerLayerSize
@@ -93,6 +113,36 @@ class Layer
 		$this->neuronsPerLayerSize = $neuronsPerLayerSize;
 		$this->createNeurons();
 	}
+
+    /**
+    * @param Layer $nextLayer
+    * @return Layer
+    */
+    public function setNextLayer($nextLayer)
+    {
+        $this->nextLayer = $nextLayer;
+        return $this;
+    }
+
+    /**
+    * @param array $trainOutputs
+    * @return Layer
+    */
+    public function setTrainOutputs($trainOutputs)
+    {
+        $this->trainOutputs = $trainOutputs;
+        return $this;
+    }
+
+    /**
+    * @param array $momentum
+    * @return Layer
+    */
+    public function setMomentum($momentum)
+    {
+        $this->momentum = $momentum;
+        return $this;
+    }
 
 	/**
 	* @param array $inputs
@@ -115,6 +165,14 @@ class Layer
 	{
 		return $this->outputs;
 	}
+
+    /**
+    * @return array
+    */
+    public function getNeurons()
+    {
+        return $this->neurons;
+    }
 
 	/**
 	* @usses Neuron::__construct()
@@ -146,41 +204,78 @@ class Layer
 
     /**
     * @param array $trainInputs
-    * @usses setTrainInputs
     * @return Layer
     */
     public function setTrainInputs($trainInputs)
     {
         $this->trainInputs = $trainInputs;
-        foreach ($this->neurons as $neuron){
-            $neuron->setTrainInputs($trainInputs);
-        }
         return $this;
     }
 
     /**
     * @param array $trainOutputs
-    * @usses setTrainOutputs
     * @return Layer
     */
     public function setTrainOutptuts($trainOutputs)
     {
         $this->trainOutputs = $trainOutputs;
-        $this->outputLayer->setTrainOutputs($trainOutputs);
+        return $this;
+    }
 
-        for ($this->neurons as $neuron){
-            $neuron->setTrainOutputs($trainOutputs);
+    public function getTrainOutput($key)
+    {
+        return $this->trainOutputs[$key];    
+    }
+
+    /**
+    * @usses Neuron::setDelta()
+    * @usses Neuron::getOutput()
+    * @usses Neuron::getTrainOutput()
+    * @return Layer
+    */
+    public function calculateOutputDeltas()
+    {
+        foreach($this->getNeurons() as $key => $neuron) {
+            $output = $neuron->getOutput();
+            $delta = $output * ($this->getTrainOutput($key) - $output) * (1 - $output);
+            $neuron->setDelta($delta);
         }
         return $this;
     }
 
-    public function calculateDeltas(){
-    
+    /**
+    * @uses Neuron::setDelta()
+    * @uses Neuron::getWeight()
+    * @uses Neuron::getDelta()
+    * @uses Neuron::getOutput()
+    * @uses getNeurons()
+    */
 
-    }
+    public function calculateHiddenDeltas()
+    {
+        $neuronsNextLayer = $this->nextLayer->getNeurons();
+        /* @var $neuron Neuron */
+        foreach($this->neurons as $key => $neuron) {
+            $sum = 0;
+            /* @var $neuronNextLayer Neuron */
+            foreach($neuronsNextLayer as $neuronNextLayer){
+                $sum += $neuronNextLayer->getWeight($key) * 
+                        $neuronNextLayer->getDelta() * $this->momentum;
+            }
+            $output = $neuron->getOutput();
+            $delta = $output * (1 - $output) * $sum;
 
+            $neuron->setDelta($delta);
+        }
+}
+
+    /**
+    * @uses Neuron::adjustWeights()
+    */
     public function adjustWeights()
     {
-
+        foreach($this->neurons as $neuron)
+            $neuron->adjustWeights();
     }
+
 }

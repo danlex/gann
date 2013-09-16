@@ -73,6 +73,16 @@ class Neuron
 	*/
 	protected $output;
 
+    /**
+    * @var int
+    */
+    protected $trainOutput;
+
+    /**
+    * @var float
+    */
+    protected $delta;
+
 	public function __construct($inputsSize)
 	{
 		$this->inputsSize = $inputsSize;
@@ -101,6 +111,42 @@ class Neuron
 	public function getOutput(){
 		return $this->output;
 	}
+
+    /**
+    * @var float $trainOuput
+    * @return Neuron
+    */
+    public function setTrainOutput($trainOutput)
+    {
+        $this->trainOutput = $trainOutput;
+        return $this;
+    }
+
+    /**
+    * @return float
+    */
+    public function getTrainOutput()
+    {
+        return $this->trainOutput;    
+    }
+
+    /**
+    * @var float $delta
+    * @return Neuron
+    */
+    public function setDelta($delta)
+    {
+        $this->delta = $delta;
+        return $this;
+    }
+
+    /**
+    * @return float
+    */
+    public function getDelta()
+    {
+        return $this->delta;
+    }
 
 	/**
 	* @param array $inputs
