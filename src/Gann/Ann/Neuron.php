@@ -39,9 +39,8 @@
 * @author Alexandru Dan <dan_lex@yahoo.com>
 * @version DNN Version 0.1 by Alexandru Dan
 * @copyright Copyright (c) 2013 by Alexandru Dan
-* @package GeneticNeuralNet
+* @package Gann
 */
-
 
 namespace Gann\Ann;
 
@@ -50,13 +49,12 @@ namespace Gann\Ann;
 * @access private
 */
 
-
 class Neuron
 {
 	/**
 	* @var int
 	*/
-	protected $inputsSize;
+	protected $inputSize;
 	
 	/**
 	* @var array
@@ -82,26 +80,96 @@ class Neuron
     * @var float
     */
     protected $delta;
-
-	public function __construct($inputsSize)
+    
+	/**
+     * set number of inputs
+     * @param integer $inputSize 
+     * @return Neuron
+     */
+    public function setInputSize($inputSize)
+    {
+    	$this->inputSize = $inputSize;
+    	return $this;
+    }
+    
+	/**
+	 * get number of inputs
+     * @return integer
+     */
+    public function getInputSize()
+    {
+    	return $this->inputSize;
+    }
+    
+	/**
+	* @param array $inputs
+	* @uses initializeWeights()
+	* @return Neuron
+	*/
+	public function setInputs($inputs)
 	{
-		$this->inputsSize = $inputsSize;
-		$this->initRandomWeights();
+		$this->inputs = $inputs;
+
+		$this->inputs[] = 1; // bias
+
+		if($this->weights === NULL){
+			$this->initRandomWeights();
+		}
+
+		return $this;
 	}
 	
 	/**
-	* Calculate the neuron activation
-	* activation = i1*w1 + i2*wn ++ in*wn + (-1)*t
-	* 
-	* @return Neuron
+	* @return float $weight
 	*/
-	public function activate()
+	public function getInput($key)
 	{
-		$sum = 0;
-		for ($i = 0; $i < $this->inputsSize + 1; $i ++){
-			$sum += $this->inputs[$i] * $this->weights[$i];
-		}
-		$this->output = $this->sigmoid($sum);
+		return $this->inputs[$key];	
+	}
+	
+	/**
+	* @param array $weights
+	* @return DNN\Neuron
+	*/
+	public function setWeights($weights)
+	{
+		$this->weights = $weights;
+		return $this;
+	}
+
+	/**
+	* @return Array $weights
+	*/
+	public function getWeights()
+	{
+		return $this->weights;
+	}
+
+	/**
+	* @param float $weight
+	* return Neuron
+	*/
+	public function setWeight($key, $weight)
+	{
+		$this->weights[$key] = $weight;
+		return $this;	
+	}
+	
+	/**
+	* @return float $weight
+	*/
+	public function getWeight($i)
+	{
+		print_r($this);
+		return $this->weights[$i];	
+	}
+	
+	/**
+	 * @param $output
+	 * return Neuron
+	 */
+	public function setOutput($output){
+		$this->output = $output;
 		return $this;
 	}
 	
@@ -147,51 +215,30 @@ class Neuron
     {
         return $this->delta;
     }
-
+	
+	public function __construct($inputSize)
+	{
+		$this->setInputSize($inputSize);
+		$this->initRandomWeights();
+	}
+	
 	/**
-	* @param array $inputs
-	* @uses initializeWeights()
+	* Calculate the neuron activation
+	* activation = i1*w1 + i2*wn ++ in*wn + (-1)*t
+	* 
 	* @return Neuron
 	*/
-	public function setInputs($inputs)
+	public function activate()
 	{
-		$this->inputs = $inputs;
-
-		$this->inputs[] = 1; // bias
-
-		if($this->weights === NULL){
-			$this->initRandomWeights();
+		$sum = 0;
+		for ($i = 0; $i < $this->getInputSize() + 1; $i ++){
+			$sum += $this->getInput($i) * $this->getWeight($i);
 		}
-
+		$this->setOutput($this->sigmoid($sum));
 		return $this;
 	}
-
-	/**
-	* @param array $weights
-	* @return DNN\Neuron
-	*/
-	public function setWeights($weights)
-	{
-		$this->weights = $weights;
-		return $this;
-	}
-
-	/**
-	* @return Array $weights
-	*/
-	public function getWeights()
-	{
-		return $this->weights;
-	}
-
-	/**
-	* @return float $weight
-	*/
-	public function getWeight($i)
-	{
-		return $this->weight[$i];	
-	}
-
+	
+		
 	/**
 	* Gets a random weight between [-0.25 .. 0.25]. Used to initialize the network.
 	*
@@ -209,8 +256,8 @@ class Neuron
 	*/
 	private function initRandomWeights() 
 	{
-		for ($i = 0; $i < $this->inputsSize + 1; $i ++){
-			$this->weight[$i] = $this->getRandomWeight();
+		for ($i = 0; $i < $this->getInputSize() + 1; $i ++){
+			$this->setWeight($i, $this->getRandomWeight());
 		}
 		return $this;
 	}
