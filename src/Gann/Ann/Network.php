@@ -53,18 +53,18 @@ class Network
 {
 
     /**
-    * @var integer
-    */
+     * @var integer
+     */
     protected $inputSize;
 
     /**
-    * @var integer
-    */
+     * @var integer
+     */
     protected $outputSize;
 
     /**
-    * @var integer
-    */
+     * @var integer
+     */
     protected $hiddenLayerSize;
 
     /**
@@ -73,48 +73,48 @@ class Network
     protected $neuronsPerLayerSize;
 
     /**
-    * @var array
-    */
+     * @var array
+     */
     protected $inputs;
 
     /**
-    * @var array
-    */
+     * @var array
+     */
     protected $outputs;
 
     /**
-    * @var array
-    */
+     * @var array
+     */
     protected $hiddenLayers;
 
     /**
-    * @var Layer
-    */
+     * @var Layer
+     */
     protected $outputLayer;
 
     /**
-    * @var array
-    */
+     * @var array
+     */
     protected $trainInputs;
 
     /**
-    * @var array
-    */
+     * @var array
+     */
     protected $trainOutputs;
 
     /**
-    * @var float
-    */
+     * @var float
+     */
     protected $trainOutputErrorTolerance = 0.002;
 
     /**
-    * @var float
-    */
+     * @var float
+     */
     protected $trainLearningRate = 0.07;
 
     /**
-    * @var float
-    */
+     * @var float
+     */
     protected $trainMomentum = 0.95;
 
     /**
@@ -201,9 +201,9 @@ class Network
     }
 
     /**
-    * @param array $inputs
-    * @return Network
-    */
+     * @param  array   $inputs
+     * @return Network
+     */
     public function setInputs($inputs)
     {
         $this->inputs = $inputs;
@@ -220,9 +220,9 @@ class Network
     }
 
     /**
-    * @param array $outputs
-    * @return Network
-    */
+     * @param  array   $outputs
+     * @return Network
+     */
     public function setOutputs($outputs)
     {
         $this->outputs = $outputs;
@@ -289,10 +289,10 @@ class Network
     }
 
     /**
-    * @param array $trainInputs
-    * @uses Network::setInputs()
-    * @return Network
-    */
+     * @param array $trainInputs
+     * @uses Network::setInputs()
+     * @return Network
+     */
     public function setTrainInputs($trainInputs)
     {
         $this->trainInputs = $trainInputs;
@@ -302,10 +302,10 @@ class Network
     }
 
     /**
-    * @param array $trainOutputs
-    * @uses Layer::setTrainOutputs()
-    * @return Network
-    */
+     * @param array $trainOutputs
+     * @uses Layer::setTrainOutputs()
+     * @return Network
+     */
     public function setTrainOutputs($trainOutputs)
     {
         $this->trainOutputs = $trainOutputs;
@@ -314,7 +314,7 @@ class Network
         return $this;
     }
 
-    /*
+    /**
      * get train output by key
      * @param  float $key
      * @return float
@@ -325,10 +325,10 @@ class Network
     }
 
     /**
-    * set network training momentum
-    * @param float $trainMomentum
-    * @return Network
-    */
+     * set network training momentum
+     * @param  float   $trainMomentum
+     * @return Network
+     */
     public function setTrainMomentum($trainMomentum)
     {
         $this->trainMomentum = $trainMomentum;
@@ -337,19 +337,19 @@ class Network
     }
 
     /**
-    * get network training momentum
-    * @return Network
-    */
+     * get network training momentum
+     * @return Network
+     */
     public function getTrainMomentum()
     {
         return $this->trainMomentum;
     }
 
     /**
-    * set network training larning rate
-    * @param float $trainLearningRate
-    * @return Network
-    */
+     * set network training larning rate
+     * @param  float   $trainLearningRate
+     * @return Network
+     */
     public function setTrainLearningRate($trainLearningRate)
     {
         $this->trainLearningRate = $trainLearningRate;
@@ -358,9 +358,9 @@ class Network
     }
 
     /**
-    * get network training learning rate
-    * @return float
-    */
+     * get network training learning rate
+     * @return float
+     */
     public function getTrainLearningRate()
     {
         return $this->trainLearningRate;
@@ -501,9 +501,9 @@ class Network
     }
 
     /**
-    * @uses Layer::adjustWeights()
-    * @return Network
-    */
+     * @uses Layer::adjustWeights()
+     * @return Network
+     */
     protected function adjustWeights()
     {
         $this->getOutputLayer()->adjustWeights();
@@ -516,9 +516,9 @@ class Network
     }
 
     /**
-    * @return float
-    * @uses getOutputs()
-    */
+     * @return float
+     * @uses getOutputs()
+     */
     public function getTrainError()
     {
         $error = 0;

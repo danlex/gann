@@ -52,38 +52,38 @@ namespace Gann\Ann;
 class Neuron
 {
     /**
-    * @var int
-    */
+     * @var int
+     */
     protected $inputSize;
 
     /**
-    * @var array
-    */
+     * @var array
+     */
     protected $inputs;
 
     /**
-    * @var array
-    */
+     * @var array
+     */
     protected $weights;
 
     /**
-    * @var int
-    */
+     * @var int
+     */
     protected $output;
 
     /**
-    * @var int
-    */
+     * @var int
+     */
     protected $trainOutput;
 
     /**
-    * @var float
-    */
+     * @var float
+     */
     protected $trainLearningRate;
 
     /**
-    * @var float
-    */
+     * @var float
+     */
     protected $delta;
 
     /**
@@ -108,10 +108,10 @@ class Neuron
     }
 
     /**
-    * @param array $inputs
-    * @uses initializeWeights()
-    * @return Neuron
-    */
+     * @param array $inputs
+     * @uses initializeWeights()
+     * @return Neuron
+     */
     public function setInputs($inputs)
     {
         if ($this->getInputSize() !== count($inputs)) {
