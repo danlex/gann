@@ -4,7 +4,7 @@ Gann - Genetic Algoritm Neural Network Train
 Gann use Genetic Agorithm to train a Neural Network
 
 
-
+```php
 Setup composer.json
 -------------------
 {
@@ -30,7 +30,7 @@ Setup composer.json
         "psr-0": {"Gann\\Ann": "src/"}
     }
 }
-
+```
 
 Usage
 -----
