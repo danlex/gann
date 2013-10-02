@@ -51,42 +51,41 @@ namespace Gann\Ann;
 
 class Layer
 {
-	/**
-	* @var integer
-	*/
-	protected $inputSize;
-	
-	/**
-	* @var integer
-	*/
-	protected $outputSize;
-	
-	/**
-	* @var integer
-	*/
-	protected $neuronsPerLayerSize;
+    /**
+    * @var integer
+    */
+    protected $inputSize;
 
-	/**
+    /**
+    * @var integer
+    */
+    protected $outputSize;
+
+    /**
+    * @var integer
+    */
+    protected $neuronsPerLayerSize;
+
+    /**
     * @var Layer
     */
     protected $nextLayer;
 
-    
-	/**
-	* @var array
-	*/
-	protected $inputs;
-	
-	/**
-	* @var array
-	*/
-	protected $outputs;
+    /**
+    * @var array
+    */
+    protected $inputs;
 
-	/**
-	* @var array
-	*/
-	protected $neurons;
-	
+    /**
+    * @var array
+    */
+    protected $outputs;
+
+    /**
+    * @var array
+    */
+    protected $neurons;
+
     /**
     * @var array
     */
@@ -101,67 +100,75 @@ class Layer
     * @var float
     */
     protected $trainMomentum;
-    
-	/**
+
+    /**
+    * @var float
+    */
+    protected $trainLearningRate;
+
+    /**
      * set number of inputs
-     * @param integer $inputSize 
+     * @param  integer $inputSize
      * @return Layer
      */
     public function setInputSize($inputSize)
     {
-    	$this->inputSize = $inputSize;
-    	return $this;
+        $this->inputSize = $inputSize;
+
+        return $this;
     }
-    
-	/**
-	 * get number of inputs
+
+    /**
+     * get number of inputs
      * @return integer
      */
     public function getInputSize()
     {
-    	return $this->inputSize;
+        return $this->inputSize;
     }
-    
-	/**
+
+    /**
      * set number of outpus
-     * @param integer $outputSize 
+     * @param  integer $outputSize
      * @return Layer
      */
     public function setOutputSize($outputSize)
     {
-    	$this->outputSize = $outputSize;
-    	return $this;
+        $this->outputSize = $outputSize;
+
+        return $this;
     }
-    
-	/**
-	 * get network output size
+
+    /**
+     * get network output size
      * @return integer
      */
     public function getOutputSize()
     {
-    	return $this->outputSize;
+        return $this->outputSize;
     }
-    
-	/**
+
+    /**
      * set number of neurons per hidden layer
-     * @param integer $neronsPerLayerSize 
+     * @param  integer $neronsPerLayerSize
      * @return Layer
      */
     public function setNeuronsPerLayerSize($neuronsPerLayerSize)
     {
-    	$this->neuronsPerLayerSize = $neuronsPerLayerSize;
-    	return $this;
+        $this->neuronsPerLayerSize = $neuronsPerLayerSize;
+
+        return $this;
     }
-    
-	/**
-	 * get numer of neurons per hidden layer
+
+    /**
+     * get numer of neurons per hidden layer
      * @return integer
      */
     public function getNeuronsPerLayerSize()
     {
-    	return $this->neuronsPerLayerSize;
+        return $this->neuronsPerLayerSize;
     }
-    
+
 /**
     * @param Layer $nextLayer
     * @return Layer
@@ -169,10 +176,11 @@ class Layer
     public function setNextLayer($nextLayer)
     {
         $this->nextLayer = $nextLayer;
+
         return $this;
     }
-    
-	/**
+
+    /**
     * @return Layer
     */
     public function getNextLayer()
@@ -188,10 +196,11 @@ class Layer
     public function setTrainMomentum($trainMomentum)
     {
         $this->trainMomentum = $trainMomentum;
+
         return $this;
     }
 
-	/**
+    /**
     * get network training momentum
     * @return float
     */
@@ -201,44 +210,83 @@ class Layer
     }
 
     /**
-	* @param array $inputs
-	* @usses Neuron::setInputs()
-	* @return Layer
-	*/
-	public function setInputs($inputs)
-	{
-		$this->inputs = $inputs;
-		foreach ($this->neurons as $neuron){
-			$neuron->setInputs($inputs);
-		}
-		return $this;
-	}
-	
-	/**
+    * set network training larning rate
+    * @param float $trainLearningRate
+    * @return Layer
+    */
+    public function setTrainLearningRate($trainLearningRate)
+    {
+        $this->trainLearningRate = $trainLearningRate;
+        /* @var $neuron Neuron */
+        foreach ($this->getNeurons() as $neuron) {
+            $neuron->setTrainLearningRate($trainLearningRate);
+        }
+
+        return $this;
+    }
+
+    /**
+    * get network training learning rate
+    * @return float
+    */
+    public function getTrainLearningRate()
+    {
+        return $this->trainLearningRate;
+    }
+
+    /**
+    * @param array $inputs
+    * @uses Neuron::setInputs()
+    * @return Layer
+    */
+    public function setInputs($inputs)
+    {
+        $this->inputs = $inputs;
+        foreach ($this->getNeurons() as $neuron) {
+            $neuron->setInputs($inputs);
+        }
+
+        return $this;
+    }
+
+    /**
      * @return array
      */
     public function getInputs()
     {
-    	return $this->inputs;
+        return $this->inputs;
     }
 
-	/**
+    /**
     * @param array $outputs
     * @return Layer
     */
-    protected function setOutputs($outputs)
+    public function setOutputs($outputs)
     {
-        $this->outptuts = $outputs;
+        $this->outputs = $outputs;
+
         return $this;
     }
-	
-	/**
-	* @return array
-	*/
-	public function getOutputs()
-	{
-		return $this->outputs;
-	}
+
+    /**
+    * @return array
+    */
+    public function getOutputs()
+    {
+        return $this->outputs;
+    }
+
+    /**
+     * Add neuron to Layer
+     * @param integer $key
+     * @param Neuron  $neuron
+     */
+    public function addNeuron($key, Neuron $neuron)
+    {
+        $this->neurons[$key] = $neuron;
+
+        return $this;
+    }
 
     /**
     * @return array
@@ -247,17 +295,18 @@ class Layer
     {
         return $this->neurons;
     }
-    
-	/**
+
+    /**
     * @param array $trainInputs
     * @return Layer
     */
     public function setTrainInputs($trainInputs)
     {
         $this->trainInputs = $trainInputs;
+
         return $this;
     }
-    
+
     /**
     * @param array $trainOutputs
     * @return Layer
@@ -265,69 +314,74 @@ class Layer
     public function setTrainOutputs($trainOutputs)
     {
         $this->trainOutputs = $trainOutputs;
+
         return $this;
     }
 
     public function getTrainOutput($key)
     {
-        return $this->trainOutputs[$key];    
+        return $this->trainOutputs[$key];
     }
 
-	/**
-	* @param int $inputSize
-	* @param int $neuronsPerLayerSize
-	* @uses createNeurons()
-	*/
-	public function __construct($inputSize, $neuronsPerLayerSize)
-	{
-		$this->inputSize = $inputSize;
-		$this->neuronsPerLayerSize = $neuronsPerLayerSize;
-		$this->createNeurons();
-	}
-
-	/**
-	* @usses Neuron::__construct()
-	* @return Layer
-	*/
-	public function createNeurons()
-	{
-		for($i = 0; $i < $this->neuronsPerLayerSize; $i ++){
-			$this->neurons[$i] = new Neuron($this->inputSize);
-		}
-		return $this;
-	}
-
-	/**
-	* @usses Neuron::activate()
-	* @usses Neuron::getOutput()
-	* @return Layer
-	*/
-	public function activate()
-	{
-		$outputs = array();
-		foreach($this->getNeurons() as $key => $neuron){
-			$neuron->activate();
-			$outputs[$key] = $neuron->getOutput();
-		}
-		$this->setOutputs($outputs);
-		return $this;
-	}
-
-    
+    /**
+    * @param int $inputSize
+    * @param int $neuronsPerLayerSize
+    * @uses createNeurons()
+    */
+    public function __construct($inputSize, $neuronsPerLayerSize)
+    {
+        $this->setInputSize($inputSize);
+        $this->setOutputSize($neuronsPerLayerSize);
+        $this->setNeuronsPerLayerSize($neuronsPerLayerSize);
+        $this->createNeurons();
+    }
 
     /**
-    * @usses Neuron::setDelta()
-    * @usses Neuron::getOutput()
-    * @usses Neuron::getTrainOutput()
+    * @uses Neuron::__construct()
+    * @return Layer
+    */
+    public function createNeurons()
+    {
+        for ($i = 0; $i < $this->getNeuronsPerLayerSize(); $i ++) {
+            $this->addNeuron($i, new Neuron($this->getInputSize()));
+        }
+
+        return $this;
+    }
+
+    /**
+    * @uses getNeurons()
+    * @uses Neuron::activate()
+    * @uses Neuron::getOutput()
+    * @uses setOutputs()
+    * @return Layer
+    */
+    public function activate()
+    {
+        $outputs = array();
+        /* @var $neuron Neuron  */
+        foreach ($this->getNeurons() as $key => $neuron) {
+            $outputs[$key] = $neuron->activate()->getOutput();
+        }
+        $this->setOutputs($outputs);
+
+        return $this;
+    }
+
+    /**
+    * @uses Neuron::setDelta()
+    * @uses Neuron::getOutput()
+    * @uses Neuron::getTrainOutput()
     * @return Layer
     */
     public function calculateOutputDeltas()
     {
-        foreach($this->getNeurons() as $key => $neuron) {
+        foreach ($this->getNeurons() as $key => $neuron) {
             $output = $neuron->getOutput();
             $delta = $output * ($this->getTrainOutput($key) - $output) * (1 - $output);
             $neuron->setDelta($delta);
         }
+
         return $this;
     }
 
@@ -339,16 +393,15 @@ class Layer
     * @uses getNeurons()
     * @return Layer
     */
-
     public function calculateHiddenDeltas()
     {
         $neuronsNextLayer = $this->getNextLayer()->getNeurons();
         /* @var $neuron Neuron */
-        foreach($this->getNeurons() as $key => $neuron) {
+        foreach ($this->getNeurons() as $key => $neuron) {
             $sum = 0;
             /* @var $neuronNextLayer Neuron */
-            foreach($neuronsNextLayer as $neuronNextLayer){
-                $sum += $neuronNextLayer->getWeight($key) * 
+            foreach ($neuronsNextLayer as $neuronNextLayer) {
+                $sum += $neuronNextLayer->getWeight($key) *
                         $neuronNextLayer->getDelta() * $this->getTrainMomentum();
             }
             $output = $neuron->getOutput();
@@ -356,10 +409,12 @@ class Layer
 
             $neuron->setDelta($delta);
         }
+
         return $this;
-	}
+    }
 
     /**
+    * @uses getNeurons()
     * @uses Neuron::adjustWeights()
     */
     public function adjustWeights()
