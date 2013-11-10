@@ -37,7 +37,7 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 * @author Alexandru Dan <dan_lex@yahoo.com>
-* @version DNN Version 0.1 by Alexandru Dan
+* @version Gann Version 0.1 by Alexandru Dan
 * @copyright Copyright (c) 2013 by Alexandru Dan
 * @package Gann
 */
@@ -55,7 +55,7 @@ class Neuron
      * @var int
      */
     protected $inputSize;
-
+    
     /**
      * @var array
      */
@@ -65,7 +65,7 @@ class Neuron
      * @var array
      */
     protected $weights;
-
+    
     /**
      * @var int
      */
@@ -75,7 +75,7 @@ class Neuron
      * @var int
      */
     protected $trainOutput;
-
+    
     /**
      * @var float
      */
@@ -85,19 +85,18 @@ class Neuron
      * @var float
      */
     protected $delta;
-
+    
     /**
      * set number of inputs
-     * @param  integer $inputSize
+     * @param integer $inputSize 
      * @return Neuron
      */
     public function setInputSize($inputSize)
     {
         $this->inputSize = $inputSize;
-
         return $this;
     }
-
+    
     /**
      * get number of inputs
      * @return integer
@@ -106,7 +105,7 @@ class Neuron
     {
         return $this->inputSize;
     }
-
+    
     /**
      * @param array $inputs
      * @uses initializeWeights()
@@ -114,26 +113,25 @@ class Neuron
      */
     public function setInputs($inputs)
     {
-        if ($this->getInputSize() !== count($inputs)) {
+        if($this->getInputSize() !== count($inputs)){
             throw new Exception("Neuron input size is not equal with count of input sent.");
         }
         $this->inputs = $inputs;
         $this->inputs[] = 1; // bias
-        if ($this->weights === NULL) {
+        if($this->weights === NULL){
             $this->initRandomWeights();
         }
-
         return $this;
     }
-
+    
     /**
     * @return float $weight
     */
     public function getInput($key)
     {
-        return $this->inputs[$key];
+        return $this->inputs[$key];    
     }
-
+    
     /**
     * @param array $weights
     * @return DNN\Neuron
@@ -141,7 +139,6 @@ class Neuron
     public function setWeights($weights)
     {
         $this->weights = $weights;
-
         return $this;
     }
 
@@ -160,38 +157,33 @@ class Neuron
     public function setWeight($key, $weight)
     {
         $this->weights[$key] = $weight;
-
-        return $this;
+        return $this;    
     }
-
+    
     /**
      * @return float $weight
      */
     public function getWeight($i)
     {
-        if (!isset($this->weights[$i])) {
+        if(!isset($this->weights[$i])){
             throw new Exception("Neuron::weight($i) is undefined.");
         }
-
-        return $this->weights[$i];
+        return $this->weights[$i];    
     }
-
+    
     /**
      * @param $output
      * return Neuron
      */
-    public function setOutput($output)
-    {
+    public function setOutput($output){
         $this->output = $output;
-
         return $this;
     }
-
+    
     /**
      * return float $output
      */
-    public function getOutput()
-    {
+    public function getOutput(){
         return $this->output;
     }
 
@@ -202,7 +194,6 @@ class Neuron
     public function setTrainOutput($trainOutput)
     {
         $this->trainOutput = $trainOutput;
-
         return $this;
     }
 
@@ -211,18 +202,17 @@ class Neuron
      */
     public function getTrainOutput()
     {
-        return $this->trainOutput;
+        return $this->trainOutput;    
     }
 
     /**
      * set network training larning rate
-     * @param  float  $trainLearningRate
+     * @param float $trainLearningRate
      * @return Neuron
      */
     public function setTrainLearningRate($trainLearningRate)
     {
         $this->trainLearningRate = $trainLearningRate;
-
         return $this;
     }
 
@@ -234,7 +224,7 @@ class Neuron
     {
         return $this->trainLearningRate;
     }
-
+    
     /**
      * @var float $delta
      * @return Neuron
@@ -242,7 +232,6 @@ class Neuron
     public function setDelta($delta)
     {
         $this->delta = $delta;
-
         return $this;
     }
 
@@ -253,64 +242,63 @@ class Neuron
     {
         return $this->delta;
     }
-
+    
     public function __construct($inputSize)
     {
         $this->setInputSize($inputSize);
         $this->initRandomWeights();
     }
-
+    
     /**
      * Calculate the neuron activation
      * activation = i1*w1 + i2*wn ++ in*wn + (-1)*t
-     *
+     * 
      * @return Neuron
      */
     public function activate()
     {
         $sum = 0;
-        for ($i = 0; $i < $this->getInputSize() + 1; $i ++) {
+        for ($i = 0; $i < $this->getInputSize() + 1; $i ++){
             $sum += $this->getInput($i) * $this->getWeight($i);
         }
         $this->setOutput($this->sigmoid($sum));
-
         return $this;
     }
-
+    
+        
     /**
      * Gets a random weight between [-0.25 .. 0.25]. Used to initialize the network.
      *
      * @return float A random weight
      */
-    protected function getRandomWeight()
+    protected function getRandomWeight() 
     {
         return ((mt_rand(0, 1000) / 1000) - 0.5) / 2;
     }
-
+    
     /**
      * Randomise the weights in the neural network
      *
      * @return Neuron
      */
-    protected function initRandomWeights()
+    protected function initRandomWeights() 
     {
-        for ($i = 0; $i < $this->getInputSize() + 1; $i ++) {
+        for ($i = 0; $i < $this->getInputSize() + 1; $i ++){
             $this->setWeight($i, $this->getRandomWeight());
         }
-
         return $this;
     }
 
     /**
      * Compute the sigmoid function 1 / (1+exp(-$v))
-     * @param  float $value
+     * @param float $value
      * @return float (between near 0 and near 1)
      */
     public static function sigmoid($value)
     {
         return 1 / (1 + exp(-1 * $value));
     }
-
+    
     /**
      * Change weights using calculated deltas
      * @uses getLearningRate()
@@ -323,10 +311,9 @@ class Neuron
     {
         /* @var float $learnRateDelta */
         $learnRateDelta = $this->getTrainLearningRate() * $this->getDelta();
-        foreach ($this->getWeights() as $key => $weight) {
+        foreach ($this->getWeights() as $key => $weight){
             $this->setWeight($key, $weight + $this->getInput($key) * $learnRateDelta);
-        }
-
+        }    
         return $this;
     }
 }
