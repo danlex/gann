@@ -1,7 +1,7 @@
 {
     "name":"danlex/gann",
-    "description": "Genetic neural network",
-    "keywords": ["Genetic", "Neural", "Network"],
+    "description": "Genetic Algorithm and Neural Network in PHP",
+    "keywords": ["PHP Genetic Algorithm", "PHP Neural Network", "PHP GA", "PHP ANN", "PHP GA"],
     "homepage": "https://github.com/danlex/gann",
     "license": "BSD 2",
     "authors": [
