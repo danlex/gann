@@ -51,34 +51,35 @@ namespace Gann\Ga;
 
 class Member
 {
-	/**
-	 * @var float
-	 */
-	protected $fitness = NULL;
+    /**
+     * @var float
+     */
+    protected $fitness = NULL;
     
     /**
-	 * @var array
-	 */
-	protected $gene = NULL;
+     * @var array
+     */
+    protected $gene = NULL;
     
-	/**
-	 * @var int
-	 */
-	protected $geneCount = NULL;
+    /**
+     * @var int
+     */
+    protected $geneSize = NULL;
     
-	/**
-	 * @var int
-	 */
-	protected $mutateCount = 90;
+    /**
+     * @var int
+     */
+    protected $mutateSize = 90;
 
-    public function __construct()
+    public function __construct($geneSize = 8)
     {
+    	$this->setGeneSize($geneSize);
     }
 
     public function setGene($value)
     {
         $this->gene = $value;
-        $this->geneCount = count($value);
+        $this->geneSize = count($value);
 
         return $this;
     }
@@ -88,21 +89,26 @@ class Member
         return $this->gene;
     }
 
-    public function setGeneCount($value)
+    public function setGeneSize($value)
     {
-        $this->geneCount = $value;
+        $this->geneSize = $value;
 
         return $this;
     }
 
-    public function getGeneCount()
+    public function getGeneSize()
     {
-        return $this->geneCount;
+        return $this->geneSize;
+    }
+    
+	public function setGeneItem($index, $geneItem)
+    {
+        $this->gene[$index] = $geneItem;
     }
 
-    public function getMutateCount()
+    public function getMutateSize()
     {
-        return $this->mutateCount;
+        return $this->mutateSize;
     }
 
     /**
@@ -112,12 +118,6 @@ class Member
     public function setRandomGene($geneConfig = null)
     {
         $randomGene = array();
-        $crtMapCount = $this->getOperatorCount();
-        $startIndex = $this->getInputCount();
-        for ($i = 0; $i < $this->getNodeCount(); $i ++) {
-            $randomIndex = $i;
-            $randomGene[$randomIndex] = rand(0, $randomIndex - 1);
-        }
         $this->setGene($randomGene);
 
         return $this;
@@ -138,7 +138,6 @@ class Member
     public function computeFitness($population = NULL)
     {
         $fitness = 0;
-        
         $this->setFitness($fitness);
 
         return $this;
@@ -146,9 +145,9 @@ class Member
 
     public function mutate()
     {
-        for ($i = 0; $i < $this->getMutateCount(); $i ++) {
-            $randomIndex = rand(0, $this->getGeneCount()-1);
-            $this->gene[$randomIndex] = rand(0, $randomIndex - 1);
+        for ($i = 0; $i < $this->getMutateSize() * $this->getGeneSize() / 100; $i ++) {
+            $randomIndex = rand(0, $this->getGeneSize()-1);
+            $this->setGeneItem($randomIndex, rand(0, $randomIndex - 1));
         }
 
         return $this;
@@ -159,12 +158,12 @@ class Member
         $geneX = $this->getGene();
         $geneY = $memberY->getGene();
         $geneZ = array();
-        $randomIndex = rand(0, $this->getGeneCount() - 1);
+        $randomIndex = rand(0, $this->getGeneSize() - 1);
         for ($i = 0; $i < $randomIndex; $i ++) {
             $geneZ[$i] = $geneX[$i];
         }
 
-        for ($i = $randomIndex; $i < $this->getGeneCount(); $i ++) {
+        for ($i = $randomIndex; $i < $this->getGeneSize(); $i ++) {
             $geneZ[$i] = $geneY[$i];
         }
         $memberZ = new Member();

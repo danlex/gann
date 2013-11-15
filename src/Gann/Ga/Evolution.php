@@ -210,7 +210,7 @@ class Evolution
         return $this;
     }
     
-	/**
+    /**
      * get number of generations 
      * @return integer
      */
@@ -254,7 +254,7 @@ class Evolution
 
         return $this;
     }
-        
+    
     public function __construct($populationSize = 10, $populationIncrement = 2, $populationMaxMutate = 2, $maxGenerations = 100)
     {
         $this->setPopulationSize($populationSize);
@@ -314,11 +314,11 @@ class Evolution
      */
     protected function computeFitness()
     {
-    	for ($i = 0; $i < $this->getPopulationSize(); $i ++) {
+        for ($i = 0; $i < $this->getPopulationSize(); $i ++) {
             $this->getMember($i)->computeFitness($this);
         }
-	    
-	    return $this;
+        
+        return $this;
     }
 
     /**
@@ -329,16 +329,16 @@ class Evolution
      */
     protected function sort()
     {
-    	usort($this->getPopulation(), function (Member $a, Member $b)
-	    {
-	        if ($a->getFitness() == $b->getFitness()) {
-	            return 0;
-	        }
-	
-	        return ($a->getFitness() > $b->getFitness()) ? +1 : -1;
-	    });
-	    
-	    return $this;
+        usort($this->getPopulation(), function (Member $a, Member $b)
+        {
+            if ($a->getFitness() == $b->getFitness()) {
+                return 0;
+            }
+    
+            return ($a->getFitness() > $b->getFitness()) ? +1 : -1;
+        });
+        
+        return $this;
     }
 
     /**
@@ -353,8 +353,8 @@ class Evolution
             $newMember = $this->getMember($i)->crossover($this->getMember($i+1));
             $this->setMember($this->getPopulationCount() - 1 - $i, $newMember);
         }
-	    
-	    return $this;
+        
+        return $this;
     }
 
     /**
@@ -366,11 +366,11 @@ class Evolution
      */
     protected function mutate()
     {
-    	for ($i = 0; $i < $this->getPopulationMaxMutate(); $i++) {
-	        $this->getRandomMember()->mutate();
+        for ($i = 0; $i < $this->getPopulationMaxMutate(); $i++) {
+            $this->getRandomMember()->mutate();
         }
-	    
-	    return $this;
+        
+        return $this;
     }
 
     
@@ -383,7 +383,7 @@ class Evolution
      */
     protected function termination()
     {
-    	if ($this->getGenerations() > $this->getMaxGenerations()) {
+        if ($this->getGenerations() > $this->getMaxGenerations()) {
             
             return true;
         }
@@ -415,8 +415,8 @@ class Evolution
      */
     protected function debug($message)
     {
-    	echo($str);
-    	
-    	return $this;
+        echo($str);
+        
+        return $this;
     }
 }
