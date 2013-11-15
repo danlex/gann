@@ -193,7 +193,7 @@ class Evolution
      * @param integer $populationMaxMutate 
      * @return int
      */
-    public function getPopulationMaxMutate($populationMaxMutate)
+    public function getPopulationMaxMutate()
     {
         return $this->populationMaxMutate;
     }
@@ -216,7 +216,7 @@ class Evolution
      */
     public function getGenerations()
     {
-        return $this->generations = $generations;
+        return $this->generations;
     }
     
     /**
@@ -255,12 +255,34 @@ class Evolution
         return $this;
     }
     
+	/**
+     * get maximum number of generations
+     * @param integer $maxGenerations 
+     * @return int
+     */
+    public function getMaxGenerations()
+    {
+        return $this->maxGenerations;
+    }
+    
+    /**
+     * set maximum number of generations
+     * @param integer $maxGenerations 
+     * @return Evolution
+     */
+    public function setMaxGenerations($maxGenerations)
+    {
+        $this->maxGenerations = $maxGenerations;
+
+        return $this;
+    }
+    
     public function __construct($populationSize = 10, $populationIncrement = 2, $populationMaxMutate = 2, $maxGenerations = 100)
     {
         $this->setPopulationSize($populationSize);
         $this->setPopulationIncrement($populationIncrement);
         $this->setPopulationMaxMutate($populationMaxMutate);
-        $this->setGenerations($generations);
+        $this->setMaxGenerations($maxGenerations);
     }
     
     /**
@@ -299,7 +321,7 @@ class Evolution
      */
     protected function selection()
     {
-        $thi->computeFitness()->sort()->crossover()->mutate();
+        $this->computeFitness()->sort()->crossover()->mutate();
 
         $this->debug ($this->getGenerations().'|'.$this->getMember(0)->getFitness().PHP_EOL);
         
@@ -415,7 +437,7 @@ class Evolution
      */
     protected function debug($message)
     {
-        echo($str);
+        echo($message);
         
         return $this;
     }
