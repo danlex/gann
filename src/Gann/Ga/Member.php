@@ -42,6 +42,7 @@
 * @package Gann
 */
 
+use Gann\Ga\Evolution;
 namespace Gann\Ga;
 
 /**
@@ -49,8 +50,13 @@ namespace Gann\Ga;
 * @access public
 */
 
-class Member
+abstract class Member
 {
+    /**
+     * @var Evolution
+     */
+    protected $evolution = NULL;
+    
     /**
      * @var float
      */
@@ -69,17 +75,33 @@ class Member
     /**
      * @var int
      */
-    protected $mutateSize = 90;
-
-    public function __construct($geneSize = 8)
-    {
-    	$this->setGeneSize($geneSize);
-    }
+    protected $mutateSize = 0.9;
 
     public function setGene($value)
     {
         $this->gene = $value;
         $this->geneSize = count($value);
+
+        return $this;
+    }
+
+    /**
+     * get evolution
+     * @return Evolution
+     */
+    public function getEvolution()
+    {
+        return $this->evolution;
+    }
+
+    /**
+     * set evolution
+     * @param Evolution $evolution
+     * @return Member
+     */
+    public function setEvolution(Evolution $evolution)
+    {
+        $this->evolution = $evolution;
 
         return $this;
     }
@@ -101,11 +123,41 @@ class Member
         return $this->geneSize;
     }
     
-	public function setGeneItem($index, $geneItem)
+	/**
+     * set gene item by index
+     * @param integer $index
+     * @param integer $geneItem
+     * @return string
+     */
+    public function setGeneItem($index, $geneItem)
     {
         $this->gene[$index] = $geneItem;
     }
+    
 
+	/**
+     * get gene item by index
+     * @param integer $index
+     * @return string
+     */
+    public function getGeneItem($index)
+    {
+        return $this->gene[$index];
+    }
+
+    /*
+     * set mutate size
+     * @param integer $mutateSize
+     * @return Member
+     */
+    public function setMutateSize($mutateSize)
+    {
+        $this->mutateSize = $mutateSize;
+        
+        return $this;
+    }
+
+    
     public function getMutateSize()
     {
         return $this->mutateSize;
@@ -135,25 +187,19 @@ class Member
         return $this->fitness;
     }
 
-    public function computeFitness($population = NULL)
+
+    public function __construct(Evolution $evolution, $geneSize = 8, $mutateSize = 0.9)
     {
-        $fitness = 0;
-        $this->setFitness($fitness);
-
-        return $this;
+    	$this->setEvolution($evolution);
+    	$this->setGeneSize($geneSize);
+    	$this->setMutateSize($mutateSize);
     }
-
-    public function mutate()
-    {
-        for ($i = 0; $i < $this->getMutateSize() * $this->getGeneSize() / 100; $i ++) {
-            $randomIndex = rand(0, $this->getGeneSize()-1);
-            $this->setGeneItem($randomIndex, rand(0, $randomIndex - 1));
-        }
-
-        return $this;
-    }
-
-    public function crossover($memberY)
+    
+    abstract public function computeFitness();
+    
+    abstract public function mutate();
+    
+    public function crossover($memberY, $memberZ)
     {
         $geneX = $this->getGene();
         $geneY = $memberY->getGene();
@@ -166,8 +212,6 @@ class Member
         for ($i = $randomIndex; $i < $this->getGeneSize(); $i ++) {
             $geneZ[$i] = $geneY[$i];
         }
-        $memberZ = new Member();
-        $memberZ->setGene($geneZ);
-        return $memberZ;
+        return $this;
     }
 }

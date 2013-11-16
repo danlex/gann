@@ -87,8 +87,14 @@ class Evolution
     protected $maxGenerations = 10000;
 
     /**
+     * member item class
+     * @var string
+     */
+    protected $memberClass = 'Member';
+
+    /**
      * get population
-     * @return int
+     * @return array
      */
     public function getPopulation()
     {
@@ -97,6 +103,7 @@ class Evolution
     
     /**
      * set population
+     * @param array $population
      * @return Evolution
      */
     public function setPopulation($population)
@@ -190,7 +197,6 @@ class Evolution
 
     /**
      * get number of members to mutate
-     * @param integer $populationMaxMutate 
      * @return int
      */
     public function getPopulationMaxMutate()
@@ -277,8 +283,51 @@ class Evolution
         return $this;
     }
     
-    public function __construct($populationSize = 10, $populationIncrement = 2, $populationMaxMutate = 2, $maxGenerations = 100)
+	/**
+     * get member class
+     * @return string
+     */
+    public function getMemberClass()
     {
+        return $this->memberClass;
+    }
+    
+    /**
+     * set member class
+     * @param striing $memberClass 
+     * @return Evolution
+     */
+    public function setMemberClass($memberClass)
+    {
+        $this->memberClass = $memberClass;
+
+        return $this;
+    }
+    
+	/**
+     * get target
+     * @return string
+     */
+    public function getTarget()
+    {
+        return $this->target;
+    }
+    
+    /**
+     * set target
+     * @param string $target 
+     * @return Evolution
+     */
+    public function setTarget($target)
+    {
+        $this->target = $target;
+
+        return $this;
+    }
+    
+    public function __construct($memberClass = 'Member', $populationSize = 10, $populationIncrement = 2, $populationMaxMutate = 2, $maxGenerations = 100)
+    {
+        $this->setMemberClass($memberClass);
         $this->setPopulationSize($populationSize);
         $this->setPopulationIncrement($populationIncrement);
         $this->setPopulationMaxMutate($populationMaxMutate);
@@ -303,10 +352,23 @@ class Evolution
      * create inital population
      * @return Evolution
      */
+    protected function memberFactory()
+    {
+    	$memberClass = __NAMESPACE__ . '\\' . $this->getMemberClass();
+    	$reflectionClass = new \ReflectionClass($memberClass);
+		$member = $reflectionClass->newInstanceArgs(array('evolution'=>$this));
+        
+        return $member;
+    }
+
+    /**
+     * create inital population
+     * @return Evolution
+     */
     protected function initPopulation()
     {
         for ($i = 0; $i < $this->getPopulationSize(); $i ++) {
-            $this->setMember($i, new Member());
+            $this->setMember($i, $this->memberFactory());
             $this->getMember($i)->setRandomGene();
         }
         
@@ -337,7 +399,7 @@ class Evolution
     protected function computeFitness()
     {
         for ($i = 0; $i < $this->getPopulationSize(); $i ++) {
-            $this->getMember($i)->computeFitness($this);
+            $this->getMember($i)->computeFitness();
         }
         
         return $this;
@@ -372,7 +434,8 @@ class Evolution
     protected function crossover()
     {
         for ($i = 0; $i < $this->getPopulationIncrement(); $i++) {
-            $newMember = $this->getMember($i)->crossover($this->getMember($i+1));
+            $newMember = $this->memberFactory();
+            $this->getMember($i)->crossover($this->getMember($i+1), $newMember);
             $this->setMember($this->getPopulationCount() - 1 - $i, $newMember);
         }
         
