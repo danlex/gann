@@ -64,11 +64,16 @@ class MemberSudoku extends Member
      */
     public function getGeneToString()
     {
-        $geneToString = '';
+        $geneToString = PHP_EOL;
         for($i = 0; $i < $this->getGeneSize(); $i ++){
-            $geneToString .= $this->getGeneItem($i);
+            if ($i % 9 === 0){
+            	$geneToString .= PHP_EOL;
+            }
+        	$geneToString .= $this->getGeneItem($i);
+        	$geneToString .= ' ';
+        	
         }
-        
+        $geneToString .= PHP_EOL;
         return $geneToString;
     }
     
@@ -98,7 +103,25 @@ class MemberSudoku extends Member
 
         return $this;
     }
+    
+    /**
+     * (non-PHPdoc)
+     * @see Gann\Ga.Member::crossover()
+     */
+    public function crossover($memberY, $memberZ)
+    {
+        $memberY = $this->getEvolution()->getRandomMember();
+    	$randomIndex = rand(0, $this->getGeneSize() - 1);
+        for ($i = 0; $i < $randomIndex; $i ++) {
+            $memberZ->setGeneItem($i, $this->getGeneItem($i));
+        }
 
+        for ($i = $randomIndex; $i < $this->getGeneSize(); $i ++) {
+            $memberZ->setGeneItem($i, $memberY->getGeneItem($i));
+        }
+        return $this;
+    }
+    
     /**
      * (non-PHPdoc)
      * @see Gann\Ga.Member::computeFitness()
@@ -127,23 +150,31 @@ class MemberSudoku extends Member
         	//box
         	
         }
-        $boxes = array();
+        
         for ($line = 0; $line < 3; $line ++) {
         	for ($column = 0; $column < 3; $column ++) {
 	        	$box = array();
-	        	for ($j = $line; $j < $line + 3; $j ++) {
-	        		for($k = $column; $k < $column + 3; $k ++){
-	        			$box[] = $j * 3 + $k;
+	        	for ($j = 0; $j < 3; $j ++) {
+	        		for($k = 0; $k < 3; $k ++){
+	        			$box[] = $line * 27 +  $column * 3 + ($j * 9) + $k;
 	        		}
 	        	}
 	        	$boxes[] = $box;
         	}
         }
-        print_r($boxes);die;
+        /*
+         00 01 02 03 04 05 06 07 08
+         09 10 11 12 13 14 15 16 17
+         18 19 20 21 22 23 24 25 26
+         27 28 29 30 31 32 33 34 35
+         36 37 38 39 40 41 42 43 44
+         45 46 47 48 49 50 51 52 53
+         54 55 56 57 58 59 60 61 62
+         63 64 65
+         */
         $numbers = array();
-        for ($i = 0; $i < 9; $i ++) {
-            $numnbers[] = $i;
-            $fintess += $this->countNotUnique($numbers);
+        foreach ($boxes as $box) {
+            $fitness += $this->countNotUnique($box);
         }
         $this->setFitness($fitness);
         
