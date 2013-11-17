@@ -63,17 +63,23 @@ class Evolution
     protected $populationSize = 1000;
     
     /**
-     * number of members to create per generation
-     * @var integer
+     * percent of members to create per generation
+     * @var float
      */
-    protected $populationIncrement = 900;
+    protected $populationIncrement = 0.2;
 
     /**
-     * number of members to mutate per generation
-     * @var integer
+     * percent of members to mutate per generation
+     * @var float
      */
-    protected $populationMaxMutate = 900;
+    protected $populationMutatePercent = 0.2;
 
+	/**
+     * gene mutate percent
+     * @var float
+     */
+    protected $geneMutatePercent = 0.2;
+    
     /**
      * number of evolved generations
      * @var integer
@@ -84,7 +90,7 @@ class Evolution
      * maximum number of generations
      * @var integer
      */
-    protected $maxGenerations = 10000;
+    protected $maxGenerations = 1000000;
 
     /**
      * member item class
@@ -184,8 +190,8 @@ class Evolution
     }
     
     /**
-     * set number of inputs
-     * @param integer $populationIncrement 
+     * set percent of members to create each generation
+     * @param float $populationIncrement 
      * @return Evolution
      */
     public function setPopulationIncrement($populationIncrement)
@@ -196,24 +202,45 @@ class Evolution
     }
 
     /**
-     * get number of members to mutate
-     * @return int
+     * get percent of members to mutate
+     * @return float
      */
-    public function getPopulationMaxMutate()
+    public function getPopulationMutatePercent()
     {
-        return $this->populationMaxMutate;
+        return $this->populationMutatePercent;
     }
     
     /**
-     * set number members to mutate
-     * @param integer $populationMaxMutate 
+     * set percent of members to mutate
+     * @param float $populationMutatePercent 
      * @return Evolution
      */
-    public function setPopulationMaxMutate($populationMaxMutate)
+    public function setPopulationMutatePercent($populationMutatePercent)
     {
-        $this->populationMaxMutate = $populationMaxMutate;
+        $this->populationMutatePercent = $populationMutatePercent;
 
         return $this;
+    }
+    
+    /**
+     * set gene mutate percent 0..100
+     * @param float $geneMutatePercent
+     * @return Member
+     */
+    public function setGeneMutatePercent($geneMutatePercent)
+    {
+        $this->geneMutatePercent = $geneMutatePercent;
+        
+        return $this;
+    }
+
+    /**
+     * get gene mutate percent
+     * @return float
+     */
+    public function getGeneMutatePercent()
+    {
+        return $this->geneMutatePercent;
     }
     
     /**
@@ -261,7 +288,7 @@ class Evolution
         return $this;
     }
     
-	/**
+    /**
      * get maximum number of generations
      * @param integer $maxGenerations 
      * @return int
@@ -283,7 +310,7 @@ class Evolution
         return $this;
     }
     
-	/**
+    /**
      * get member class
      * @return string
      */
@@ -304,7 +331,7 @@ class Evolution
         return $this;
     }
     
-	/**
+    /**
      * get target
      * @return string
      */
@@ -325,13 +352,9 @@ class Evolution
         return $this;
     }
     
-    public function __construct($memberClass = 'Member', $populationSize = 10, $populationIncrement = 2, $populationMaxMutate = 2, $maxGenerations = 100)
+    public function __construct()
     {
-        $this->setMemberClass($memberClass);
-        $this->setPopulationSize($populationSize);
-        $this->setPopulationIncrement($populationIncrement);
-        $this->setPopulationMaxMutate($populationMaxMutate);
-        $this->setMaxGenerations($maxGenerations);
+        return $this;
     }
     
     /**
@@ -354,9 +377,9 @@ class Evolution
      */
     protected function memberFactory()
     {
-    	$memberClass = __NAMESPACE__ . '\\' . $this->getMemberClass();
-    	$reflectionClass = new \ReflectionClass($memberClass);
-		$member = $reflectionClass->newInstanceArgs(array('evolution'=>$this));
+        $memberClass = __NAMESPACE__ . '\\' . $this->getMemberClass();
+        $reflectionClass = new \ReflectionClass($memberClass);
+        $member = $reflectionClass->newInstanceArgs(array('evolution'=>$this));
         
         return $member;
     }
@@ -384,9 +407,8 @@ class Evolution
     protected function selection()
     {
         $this->computeFitness()->sort()->crossover()->mutate();
-
-        $this->debug ($this->getGenerations().'|'.$this->getMember(0)->getFitness().PHP_EOL);
-        
+        $this->debugPopulation();
+    	
         return $this;
     }
     
@@ -413,7 +435,7 @@ class Evolution
      */
     protected function sort()
     {
-        usort($this->getPopulation(), function (Member $a, Member $b)
+        usort($this->population, function (Member $a, Member $b)
         {
             if ($a->getFitness() == $b->getFitness()) {
                 return 0;
@@ -421,7 +443,6 @@ class Evolution
     
             return ($a->getFitness() > $b->getFitness()) ? +1 : -1;
         });
-        
         return $this;
     }
 
@@ -433,7 +454,7 @@ class Evolution
      */
     protected function crossover()
     {
-        for ($i = 0; $i < $this->getPopulationIncrement(); $i++) {
+        for ($i = 0; $i < $this->getPopulationIncrement() * $this->getPopulationSize(); $i++) {
             $newMember = $this->memberFactory();
             $this->getMember($i)->crossover($this->getMember($i+1), $newMember);
             $this->setMember($this->getPopulationCount() - 1 - $i, $newMember);
@@ -444,14 +465,14 @@ class Evolution
 
     /**
      * mutate population
-     * @uses getPopulationMaxMutate()
+     * @uses getPopulationMutatePercent()
      * @uses getRandomMember()
      * @uses Member::mutate()
      * @return Evolution
      */
     protected function mutate()
     {
-        for ($i = 0; $i < $this->getPopulationMaxMutate(); $i++) {
+        for ($i = 0; $i < $this->getPopulationMutatePercent(); $i++) {
             $this->getRandomMember()->mutate();
         }
         
@@ -468,7 +489,7 @@ class Evolution
      */
     protected function termination()
     {
-        if ($this->getGenerations() > $this->getMaxGenerations()) {
+        if ($this->getGenerations() >= $this->getMaxGenerations() || $this->getMember(0)->isPerfect()) {
             
             return true;
         }
@@ -503,5 +524,18 @@ class Evolution
         echo($message);
         
         return $this;
+    }
+    
+    /*
+     * debug population fitness
+     * @return Evolution
+     */
+    protected function debugPopulation()
+    {
+    	for($i = 0; $i < 1; $i ++){
+        	$this->debug ($this->getGenerations().'|'.$this->getMember($i)->getFitness().'|'.$this->getMember($i)->getGeneToString() . PHP_EOL);
+    	}
+    	//$this->debug(PHP_EOL. PHP_EOL. PHP_EOL);
+    	return $this;
     }
 }

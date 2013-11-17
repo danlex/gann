@@ -42,7 +42,6 @@
 * @package Gann
 */
 
-use Gann\Ga\Evolution;
 namespace Gann\Ga;
 
 /**
@@ -71,19 +70,6 @@ abstract class Member
      * @var int
      */
     protected $geneSize = NULL;
-    
-    /**
-     * @var int
-     */
-    protected $mutateSize = 0.9;
-
-    public function setGene($value)
-    {
-        $this->gene = $value;
-        $this->geneSize = count($value);
-
-        return $this;
-    }
 
     /**
      * get evolution
@@ -105,25 +91,49 @@ abstract class Member
 
         return $this;
     }
+    
+    /**
+     * set member gene
+     * @param Array $gene
+     */
+    public function setGene($gene)
+    {
+        $this->gene = $gene;
+        $this->geneSize = count($gene);
 
+        return $this;
+    }
+    
+    /**
+     * get member gene
+     */
     public function getGene()
     {
         return $this->gene;
     }
 
-    public function setGeneSize($value)
+    /**
+     * set gene size
+     * @param integer $geneSize
+     * @return Member
+     */
+    public function setGeneSize($geneSize)
     {
-        $this->geneSize = $value;
+        $this->geneSize = $geneSize;
 
         return $this;
     }
 
+    /**
+     * get gene size
+     * @return integer
+     */
     public function getGeneSize()
     {
         return $this->geneSize;
     }
     
-	/**
+    /**
      * set gene item by index
      * @param integer $index
      * @param integer $geneItem
@@ -135,83 +145,100 @@ abstract class Member
     }
     
 
-	/**
+    /**
      * get gene item by index
      * @param integer $index
      * @return string
      */
     public function getGeneItem($index)
     {
+        if(!isset($this->gene[$index])){
+            throw new \Exception("Gene index $index does not exist.");
+        }
         return $this->gene[$index];
     }
 
-    /*
-     * set mutate size
-     * @param integer $mutateSize
+    /**
+     * set member fitness
+     * @param float $fitness
      * @return Member
      */
-    public function setMutateSize($mutateSize)
+    public function setFitness($fitness)
     {
-        $this->mutateSize = $mutateSize;
-        
-        return $this;
-    }
+        $this->fitness = $fitness;
 
-    
-    public function getMutateSize()
-    {
-        return $this->mutateSize;
+        return $this;
     }
 
     /**
-    * Generate random gene
-    * array(0, 1, 1)
-    */
-    public function setRandomGene($geneConfig = null)
-    {
-        $randomGene = array();
-        $this->setGene($randomGene);
-
-        return $this;
-    }
-    
-    public function setFitness($value)
-    {
-        $this->fitness = $value;
-
-        return $this;
-    }
-
+     * get fitness
+     * @return float
+     */
     public function getFitness()
     {
         return $this->fitness;
     }
 
 
-    public function __construct(Evolution $evolution, $geneSize = 8, $mutateSize = 0.9)
+    public function __construct(Evolution $evolution)
     {
-    	$this->setEvolution($evolution);
-    	$this->setGeneSize($geneSize);
-    	$this->setMutateSize($mutateSize);
+        $this->setEvolution($evolution);
+        
+        return $this;
     }
     
-    abstract public function computeFitness();
-    
-    abstract public function mutate();
-    
+    /**
+     * 
+     * crossover between curent member and memberY
+     * select random index 0 to gene size
+     * copy from current member gene from index 0 up to random index
+     * copy from second member gene from random index to gene size
+     * @param Member $memberY
+     * @param Member $memberZ
+     * @return Member
+     */
     public function crossover($memberY, $memberZ)
     {
-        $geneX = $this->getGene();
-        $geneY = $memberY->getGene();
-        $geneZ = array();
         $randomIndex = rand(0, $this->getGeneSize() - 1);
         for ($i = 0; $i < $randomIndex; $i ++) {
-            $geneZ[$i] = $geneX[$i];
+            $memberZ->setGeneItem($i, $this->getGeneItem($i));
         }
 
         for ($i = $randomIndex; $i < $this->getGeneSize(); $i ++) {
-            $geneZ[$i] = $geneY[$i];
+            $memberZ->setGeneItem($i, $memberY->getGeneItem($i));
         }
         return $this;
     }
+    
+    /**
+     * compute gene as string
+     * @uses getGeneSize()
+     * @uses getGeneItem()
+     * @return string
+     */
+    abstract public function getGeneToString();
+    
+    /**
+    * Generate random gene
+    * array(0, 1, 1)
+    */
+    abstract public function setRandomGene();
+    
+    /**
+     * compute member fitness
+     * @return Member
+     */
+    abstract public function computeFitness();
+    
+    /**
+     * mutate member
+     * @return Member
+     */
+    abstract public function mutate();
+    
+    /**
+     * member touched the target
+     * @return Member
+     */
+    abstract public function isPerfect();
 }

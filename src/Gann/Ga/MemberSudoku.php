@@ -49,14 +49,13 @@ namespace Gann\Ga;
 * @access public
 */
 
-class MemberHelloWorld extends Member
+class MemberSudoku extends Member
 {
 
     public function __construct(Evolution $evolution)
     {
         parent::__construct($evolution);
-    	$geneSize = strlen($evolution->getTarget());
-        $this->setGeneSize($geneSize);
+        $this->setGeneSize(81);
     }
     
     /**
@@ -67,7 +66,7 @@ class MemberHelloWorld extends Member
     {
         $geneToString = '';
         for($i = 0; $i < $this->getGeneSize(); $i ++){
-            $geneToString .= chr($this->getGeneItem($i));
+            $geneToString .= $this->getGeneItem($i);
         }
         
         return $geneToString;
@@ -79,10 +78,8 @@ class MemberHelloWorld extends Member
     */
     public function setRandomGene()
     {
-        $values = array_merge(range(32, 126));
-        $max = count($values) - 1;
         for($i=0; $i < $this->getGeneSize(); $i++){
-            $this->setGeneItem($i, $values[mt_rand(0, $max)]);
+            $this->setGeneItem($i, rand(1, 9));
         }
         
         return $this;
@@ -96,7 +93,7 @@ class MemberHelloWorld extends Member
     {
         for ($i = 0; $i < $this->getEvolution()->getGeneMutatePercent() * $this->getGeneSize(); $i ++) {
             $randomIndex = rand(0, $this->getGeneSize()-1);
-            $this->setGeneItem($randomIndex, $this->getGeneItem($randomIndex) + rand(-1, 1));
+            $this->setGeneItem($randomIndex, rand(1, 9));
         }
 
         return $this;
@@ -111,12 +108,61 @@ class MemberHelloWorld extends Member
         $target = $this->getEvolution()->getTarget();
         
         $fitness = 0;
-        for ($i = 0; $i < $this->getGeneSize(); $i ++) {
-            $fitness += pow(ord($target[$i]) - $this->getGeneItem($i), 2);
+        $boxes = array();
+        for ($i = 0; $i < 9; $i ++) {
+        	//line
+        	$box = array();
+        	for ($j = 0; $j < 9; $j ++) {
+        		$box[] = $i * 9 + $j;
+        	}
+        	$boxes[] = $box;
+        	
+        	//column
+        	$box = array();
+        	for ($j = 0; $j < 9; $j ++) {
+        		$box[] = $i + $j * 9;
+        	}
+        	$boxes[] = $box;
+        	
+        	//box
+        	
+        }
+        $boxes = array();
+        for ($line = 0; $line < 3; $line ++) {
+        	for ($column = 0; $column < 3; $column ++) {
+	        	$box = array();
+	        	for ($j = $line; $j < $line + 3; $j ++) {
+	        		for($k = $column; $k < $column + 3; $k ++){
+	        			$box[] = $j * 3 + $k;
+	        		}
+	        	}
+	        	$boxes[] = $box;
+        	}
+        }
+        print_r($boxes);die;
+        $numbers = array();
+        for ($i = 0; $i < 9; $i ++) {
+            $numnbers[] = $i;
+            $fintess += $this->countNotUnique($numbers);
         }
         $this->setFitness($fitness);
         
         return $this;
+    }
+    
+    public function countNotUnique($numbers)
+    {
+    	$countNotUnique = 0;
+        $lineHash = array();
+        for ($i = 0; $i < count($numbers); $i ++) {
+            if(isset($lineHash[$this->getGeneItem($numbers[$i])])){
+            	$countNotUnique ++;
+            } else {
+            	$lineHash[$this->getGeneItem($numbers[$i])] = $numbers[$i];
+            }
+        }
+        
+        return $countNotUnique;
     }
     
     /**
