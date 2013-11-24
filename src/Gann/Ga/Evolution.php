@@ -155,7 +155,9 @@ class Evolution
      */
     public function setMember($index, Member $member)
     {
-        $this->population[$index] = $member;
+        $this->population[$index] = null;
+        unset($this->population[$index]);
+    	$this->population[$index] = $member;
         return $this;
     }
     
@@ -455,9 +457,8 @@ class Evolution
     protected function crossover()
     {
         for ($i = 0; $i < $this->getPopulationIncrement() * $this->getPopulationSize(); $i++) {
-            $newMember = $this->memberFactory();
+            $newMember = $this->getMember($this->getPopulationCount() - 1 - $i);
             $this->getMember($i)->crossover($this->getMember($i+1), $newMember);
-            $this->setMember($this->getPopulationCount() - 1 - $i, $newMember);
         }
         
         return $this;
@@ -532,10 +533,18 @@ class Evolution
      */
     protected function debugPopulation()
     {
+    	
     	for($i = 0; $i < 1; $i ++){
-        	$this->debug ($this->getGenerations().'|'.$this->getMember($i)->getFitness().'|'.$this->getMember($i)->getGeneToString() . PHP_EOL);
+        	$this->debug ($this->debugMemory() . '|' . $this->getPopulationSize(). '|'. $this->getPopulationIncrement() . '|'. $this->getPopulationMutatePercent() . '|' .$this->getGeneMutatePercent() . '|' . $this->getGenerations().'|'.$this->getMember($i)->getFitness().'|'.$this->getMember($i)->getGeneToString() . PHP_EOL);
     	}
     	//$this->debug(PHP_EOL. PHP_EOL. PHP_EOL);
     	return $this;
     }
+    
+    protected function debugMemory()
+	{
+	    $size = memory_get_usage(true);
+		$unit = array('b','kb','mb','gb','tb','pb');
+	    return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
+	}
 }

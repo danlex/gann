@@ -178,6 +178,23 @@ abstract class Member
     {
         return $this->fitness;
     }
+    
+    /**
+     * save Member to array
+     * @uses getFitness()
+     * @uses getGene()
+     * @uses getGeneSize()
+     * @return Array
+     */
+    public function toArray()
+    {
+    	$memberArray = array();
+    	$memberArray['fitness'] = $this->getFitness();
+    	$memberArray['gene'] = $this->getGene();
+    	$memberArray['geneSize'] = $this->getGeneSize();
+    	
+    	return $memberArray();
+    }
 
 
     public function __construct(Evolution $evolution)

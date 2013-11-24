@@ -52,10 +52,32 @@ namespace Gann\Ga;
 class MemberSudoku extends Member
 {
 
-    public function __construct(Evolution $evolution)
+    protected $sudokuSize = 3;
+    
+    public function getSudokuSize()
+    {
+    	return $this->sudokuSize;
+    }
+    
+	public function getSudokuSize2()
+    {
+    	return pow($this->sudokuSize, 2);
+    }
+
+	public function getSudokuSize3()
+    {
+    	return pow($this->sudokuSize, 3);
+    }
+    
+	public function getSudokuSize4()
+    {
+    	return pow($this->sudokuSize, 4);
+    }
+	
+	public function __construct(Evolution $evolution)
     {
         parent::__construct($evolution);
-        $this->setGeneSize(81);
+        $this->setGeneSize($this->getSudokuSize4());
     }
     
     /**
@@ -66,10 +88,13 @@ class MemberSudoku extends Member
     {
         $geneToString = PHP_EOL;
         for($i = 0; $i < $this->getGeneSize(); $i ++){
-            if ($i % 9 === 0){
+            if ($i % $this->getSudokuSize2() === 0){
             	$geneToString .= PHP_EOL;
             }
-        	$geneToString .= $this->getGeneItem($i);
+        	if ($this->getGeneItem($i) < 10){
+        		$geneToString .= '0';
+        	}
+            $geneToString .= $this->getGeneItem($i);
         	$geneToString .= ' ';
         	
         }
@@ -84,7 +109,7 @@ class MemberSudoku extends Member
     public function setRandomGene()
     {
         for($i=0; $i < $this->getGeneSize(); $i++){
-            $this->setGeneItem($i, rand(1, 9));
+            $this->setGeneItem($i, rand(1, $this->getSudokuSize2()));
         }
         
         return $this;
@@ -98,7 +123,7 @@ class MemberSudoku extends Member
     {
         for ($i = 0; $i < $this->getEvolution()->getGeneMutatePercent() * $this->getGeneSize(); $i ++) {
             $randomIndex = rand(0, $this->getGeneSize()-1);
-            $this->setGeneItem($randomIndex, rand(1, 9));
+            $this->setGeneItem($randomIndex, rand(1, $this->getSudokuSize2()));
         }
 
         return $this;
@@ -110,14 +135,14 @@ class MemberSudoku extends Member
      */
     public function crossover($memberY, $memberZ)
     {
-        $memberY = $this->getEvolution()->getRandomMember();
+        $memberY2 = $this->getEvolution()->getRandomMember();
     	$randomIndex = rand(0, $this->getGeneSize() - 1);
         for ($i = 0; $i < $randomIndex; $i ++) {
             $memberZ->setGeneItem($i, $this->getGeneItem($i));
         }
 
         for ($i = $randomIndex; $i < $this->getGeneSize(); $i ++) {
-            $memberZ->setGeneItem($i, $memberY->getGeneItem($i));
+            $memberZ->setGeneItem($i, $memberY2->getGeneItem($i));
         }
         return $this;
     }
@@ -132,18 +157,18 @@ class MemberSudoku extends Member
         
         $fitness = 0;
         $boxes = array();
-        for ($i = 0; $i < 9; $i ++) {
+        for ($i = 0; $i < $this->getSudokuSize2(); $i ++) {
         	//line
         	$box = array();
-        	for ($j = 0; $j < 9; $j ++) {
-        		$box[] = $i * 9 + $j;
+        	for ($j = 0; $j < $this->getSudokuSize2(); $j ++) {
+        		$box[] = $i * $this->getSudokuSize2() + $j;
         	}
         	$boxes[] = $box;
         	
         	//column
         	$box = array();
-        	for ($j = 0; $j < 9; $j ++) {
-        		$box[] = $i + $j * 9;
+        	for ($j = 0; $j < $this->getSudokuSize2(); $j ++) {
+        		$box[] = $i + $j * $this->getSudokuSize2();
         	}
         	$boxes[] = $box;
         	
@@ -151,12 +176,12 @@ class MemberSudoku extends Member
         	
         }
         
-        for ($line = 0; $line < 3; $line ++) {
-        	for ($column = 0; $column < 3; $column ++) {
+        for ($line = 0; $line < $this->getSudokuSize(); $line ++) {
+        	for ($column = 0; $column < $this->getSudokuSize(); $column ++) {
 	        	$box = array();
-	        	for ($j = 0; $j < 3; $j ++) {
-	        		for($k = 0; $k < 3; $k ++){
-	        			$box[] = $line * 27 +  $column * 3 + ($j * 9) + $k;
+	        	for ($j = 0; $j < $this->getSudokuSize(); $j ++) {
+	        		for($k = 0; $k < $this->getSudokuSize(); $k ++){
+	        			$box[] = $line * $this->getSudokuSize3() +  $column * $this->getSudokuSize() + ($j * $this->getSudokuSize2()) + $k;
 	        		}
 	        	}
 	        	$boxes[] = $box;
@@ -187,13 +212,12 @@ class MemberSudoku extends Member
         $lineHash = array();
         for ($i = 0; $i < count($numbers); $i ++) {
             if(isset($lineHash[$this->getGeneItem($numbers[$i])])){
-            	$countNotUnique ++;
+            	$countNotUnique ++; 
             } else {
             	$lineHash[$this->getGeneItem($numbers[$i])] = $numbers[$i];
             }
         }
-        
-        return $countNotUnique;
+        return  $countNotUnique;
     }
     
     /**
