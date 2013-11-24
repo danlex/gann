@@ -161,7 +161,7 @@ class Evolution
         return $this;
     }
     
-    /**
+	/**
      * get population size
      * @return int
      */
@@ -356,6 +356,37 @@ class Evolution
     
     public function __construct()
     {
+        return $this;
+    }
+    
+    public function __destruct()
+    {
+    	for($i = 0; $i < $this->getPopulationSize(); $i++){
+    		$this->population[$index] = null;
+        	unset($this->population[$index]);
+    	}
+    	
+    	$this->populationSize = null;
+    	unset($this->populationSize);
+    	
+    	$this->populationIncrement = null;
+    	unset($this->populationIncrement);
+    	
+    	$this->populationMutatePercent = null;
+    	unset($this->populationMutatePercent);
+    	
+    	$this->maxGenerations = null;
+    	unset($this->maxGenerations);
+    	
+    	$this->geneMutatePercent = null;
+    	unset($this->geneMutatePercent);
+    	
+    	$this->population = null;
+    	unset($this->population);
+    	
+    	$this->memberClass = null;
+    	unset($this->memberClass);
+    	
         return $this;
     }
     
@@ -588,5 +619,10 @@ class Evolution
 		$this->setPopulation($population);
 		
 		return $this;
+	}
+	
+	public function getFileName()
+	{
+		return 'evolution_' . $this->getPopulationSize().'_'. $this->getMember(0)->getFitness();
 	}
 }
