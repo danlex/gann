@@ -59,6 +59,11 @@ class MemberSudoku extends Member
     	return $this->sudokuSize;
     }
     
+	public function setSudokuSize($sudokuSize)
+    {
+    	$this->sudokuSize = $sudokuSize;
+    }
+    
 	public function getSudokuSize2()
     {
     	return pow($this->sudokuSize, 2);
@@ -227,5 +232,26 @@ class MemberSudoku extends Member
     public function isPerfect()
     {
     	return $this->getFitness() == 0;
+    }
+    
+    public function toArray()
+    {
+    	$memberData = array();
+    	$memberData['fitness'] = $this->getFitness();
+    	$memberData['gene'] = $this->getGene();
+    	$memberData['geneSize'] = $this->getGeneSize();
+    	$memberData['sudokuSize'] = $this->getSudokuSize();
+    	
+    	return $memberData;
+    }
+    
+    public function loadFromArray($memberData)
+    {
+    	$this->setFitness($memberData['fitness']);
+    	$this->setGeneSize($memberData['geneSize']);
+    	$this->setGene($memberData['gene']);
+    	$this->setSudokuSize($memberData['sudokuSize']);
+    	
+    	return $this;
     }
 }

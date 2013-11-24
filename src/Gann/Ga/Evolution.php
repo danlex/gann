@@ -366,9 +366,13 @@ class Evolution
      * @uses nextGeneration()
      * @return Evolution
      */
-    public function evolve()
+    public function evolve($restart = true)
     {
-        $this->initGenerations()->initPopulation()->nextGeneration();
+        $this->initGenerations();
+    	if($restart){
+        	$this->initPopulation();
+        }
+        $this->nextGeneration();
         
         return $this;
     }
@@ -546,5 +550,43 @@ class Evolution
 	    $size = memory_get_usage(true);
 		$unit = array('b','kb','mb','gb','tb','pb');
 	    return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
+	}
+	
+	public function toArray()
+	{
+		$evolutionData = array();
+		$evolutionData['populationSize'] = $this->getPopulationSize();
+		$evolutionData['populationIncrement'] = $this->getPopulationIncrement();
+		$evolutionData['populationMutatePercent'] = $this->getPopulationMutatePercent();
+		$evolutionData['geneMutatePercent'] = $this->getGeneMutatePercent();
+		$evolutionData['generations'] = $this->getGenerations();
+		$evolutionData['maxGenerations'] = $this->getMaxGenerations();
+		$evolutionData['memberClass'] = $this->getMemberClass();
+		$evolutionData['target'] = $this->getTarget();
+		$evolutionData['population'] = array();
+		foreach($this->getPopulation() as $index=>$member){
+			$evolutionData['population'][$index] = $member->toArray();
+		}
+		
+		return $evolutionData;
+	}
+	
+	public function loadFromArray($evolutionData)
+	{
+		$this->setPopulationSize($evolutionData['populationSize']);
+		$this->setPopulationIncrement($evolutionData['populationIncrement']);
+		$this->setPopulationMutatePercent($evolutionData['populationMutatePercent']);
+		$this->setGenerations($evolutionData['generations']);
+		$this->setMaxGenerations($evolutionData['maxGenerations']);
+		$this->setMemberClass($evolutionData['memberClass']);
+		$this->setTarget($evolutionData['target']);
+		$population = array();
+		foreach($evolutionData['population'] as $index=>$memberData){
+			$population[$index] = $this->memberFactory();
+			$population[$index]->loadFromArray($memberData);
+		}
+		$this->setPopulation($population);
+		
+		return $this;
 	}
 }
